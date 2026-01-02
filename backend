@@ -1,0 +1,53 @@
+from flask import Flask, jsonify
+import random
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+BASELINE_LATENCY = (180, 250)   # ms
+BASELINE_OUTPUT = (1.1, 1.3)    # KB
+
+def simulate_metrics():
+    silent_failure = random.choice([True, False])
+
+    if silent_failure:
+        latency = random.randint(500, 800)
+        output_size = round(random.uniform(0.6, 0.8), 2)
+    else:
+        latency = random.randint(*BASELINE_LATENCY)
+        output_size = round(random.uniform(*BASELINE_OUTPUT), 2)
+
+    return latency, output_size, silent_failure
+
+def gemini_explanation(latency, output_size):
+    """
+    Placeholder for Gemini API
+    Replace this function with actual Gemini API call
+    """
+    return (
+        f"The system is running without errors, but the response latency "
+        f"({latency} ms) is significantly higher than normal and the output "
+        f"size ({output_size} KB) is reduced. This suggests a silent failure, "
+        f"possibly due to backend overload, inefficient processing, or partial logic failure."
+    )
+
+@app.route("/status")
+def status():
+    latency, output_size, silent_failure = simulate_metrics()
+
+    if silent_failure:
+        explanation = gemini_explanation(latency, output_size)
+    else:
+        explanation = "System behavior is within normal baseline limits."
+
+    return jsonify({
+        "system_status": "Running",
+        "silent_failure": silent_failure,
+        "latency_ms": latency,
+        "output_size_kb": output_size,
+        "explanation": explanation
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
