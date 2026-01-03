@@ -1,5 +1,5 @@
 function checkSystem() {
-    fetch("https://silent-failure-detection.onrender.com")
+    fetch("https://silent-failure-detection.onrender.com/status")
         .then(response => response.json())
         .then(data => {
 
